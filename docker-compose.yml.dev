@@ -5,7 +5,9 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
-    image: aswwsa/uno_create
+    build:
+      context: ./create
+    container_name: "create"
     ports:
       - "5001:5001"
   read:
@@ -13,7 +15,9 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
-    image: aswwsa/uno_read
+    build:
+      context: ./read
+    container_name: "read"
     ports:
       - "5002:5002"
   update:
@@ -21,6 +25,8 @@ services:
       - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
       - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
       - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
-    image: aswwsa/uno_update
+    build:
+      context: ./update
+    container_name: "update"
     ports:
       - "5003:5003"
