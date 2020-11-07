@@ -36,3 +36,6 @@ terraform.rc
 
 # Ignore DS_Store
 **/.DS_Store
+
+# Ignore .env file
+.env

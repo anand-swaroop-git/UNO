@@ -1,7 +1,7 @@
-from flask import Flask, request
-import requests
+from flask import Flask, request, jsonify
 import boto3
 import re
+import os
 
 app = Flask(__name__)
 
@@ -28,7 +28,7 @@ def read():
         if 'Item' not in response:
             return 'userId: {}, does not exist!'.format(uid)
         else:
-            return response['Item']
+            return jsonify(response['Item'])
 
 
 if __name__ == '__main__':
