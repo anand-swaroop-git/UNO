@@ -1,0 +1,20 @@
+version: "3"
+services:
+  create:
+    build:
+      context: ./create
+    container_name: "create"
+    ports:
+      - "5001:5001"
+  read:
+    build:
+      context: ./read
+    container_name: "read"
+    ports:
+      - "5002:5002"
+  update:
+    build:
+      context: ./update
+    container_name: "update"
+    ports:
+      - "5003:5003"
