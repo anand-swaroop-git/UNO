@@ -2,6 +2,11 @@ from flask import Flask, request
 import requests
 import boto3
 app = Flask(__name__)
+
+@app.route('/hc-update')
+def healthcheck():
+    return "update endpoint healthy"
+
 @app.route('/update', methods=['PUT'])
 def update():
     # get userid from query parameter

@@ -5,6 +5,10 @@ import string
 
 app = Flask(__name__)
 
+@app.route('/hc-create')
+def healthcheck():
+    return "create endpoint healthy"
+
 
 @app.route('/create', methods=['POST'])
 def create():

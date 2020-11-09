@@ -5,6 +5,10 @@ import os
 
 app = Flask(__name__)
 
+@app.route('/hc-read')
+def healthcheck():
+    return "read endpoint healthy"
+
 
 @app.route('/read')
 def read():
