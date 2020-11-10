@@ -1,7 +1,16 @@
 #!/bin/bash
 
-
+# echo "Finding ALB ARN."
 # alb_arn=$(aws elbv2 describe-load-balancers --query 'LoadBalancers[].LoadBalancerArn' --output text | grep uno-application-lb)
+# echo "Found."
+
+# echo "Finding port 80 listener registered to the ALB:"
+# aws_http_80_listener_arn=$(aws elbv2 describe-listeners --load-balancer-arn arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:loadbalancer/app/uno-application-lb/cc7bc4afcdbe6277 \ 
+# --query 'Listeners[].[ListenerArn, Port]' --output text | grep -E '80' | awk '{print $1}')
+# echo "Found."
+
+# echo "Finding Target Group for create service:"
+
 
 
 
@@ -27,6 +36,7 @@
 # echo $LB-ARN
 
 # CREATE-TG=`aws elbv2 describe-target-groups --load-balancer-arn $(alb-arn) --query 'TargetGroups[].TargetGroupArn' --output text | grep -i create`
+# CREATE-TG=aws elbv2 describe-target-groups --load-balancer-arn $(aws elbv2 describe-load-balancers --query 'LoadBalancers[].LoadBalancerArn' --output text | grep uno-application-lb) --query 'TargetGroups[].TargetGroupArn' --output text | grep -i create
 # echo $CREATE-TG
 
 
@@ -34,10 +44,11 @@
 
 # aws_alb_arn=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:loadbalancer/app/uno-application-lb/a1512e9dd5608b1c 
 
-aws_http_80_listener_arn=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:listener/app/uno-application-lb/ac24224d0550e0ac/69086167a961f5b8
-aws_target_groups_arn_create=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-create/b9c7371470ed9b6c
-aws_target_groups_arn_read=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-read/39181dfec01409bf
-aws_target_groups_arn_update=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-update/d4dbc2663524efd6
+
+aws_http_80_listener_arn=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:listener/app/uno-application-lb/cc7bc4afcdbe6277/2e83efa28f78b6ff
+aws_target_groups_arn_create=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-create/43f7c1f576679fb7
+aws_target_groups_arn_read=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-read/f592ce13a5f3bd4d
+aws_target_groups_arn_update=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-update/a57e27ec1604dd55
 
 aws elbv2 create-rule \
     --listener-arn $aws_http_80_listener_arn \

@@ -27,3 +27,8 @@ output "aws_target_groups_arn_update" {
     description = "Target group ARNs"
     value = aws_lb_target_group.uno-application-lb-tg-update.arn
 }
+output "api_gateway_invoke_url" {
+    description = "API gateway invoke URL"
+    value = aws_api_gateway_deployment.UnoProxyDeployment.invoke_url
+}
+
