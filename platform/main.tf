@@ -15,6 +15,8 @@ resource "aws_vpc" "aws-vpc" {
     Environment = var.app_environment
   }
 }
+
+# Public Subnet 1
 resource "aws_subnet" "aws-subnet-1" {
   vpc_id                  = aws_vpc.aws-vpc.id
   cidr_block              = "10.0.4.0/24"
@@ -25,6 +27,8 @@ resource "aws_subnet" "aws-subnet-1" {
     Environment = var.app_environment
   }
 }
+
+# Public Subnet 2
 resource "aws_subnet" "aws-subnet-2" {
   vpc_id                  = aws_vpc.aws-vpc.id
   cidr_block              = "10.0.5.0/24"
@@ -32,6 +36,18 @@ resource "aws_subnet" "aws-subnet-2" {
   map_public_ip_on_launch = true
   tags = {
     Name        = "${var.app_name}-pub-subnet-2"
+    Environment = var.app_environment
+  }
+}
+
+# Private Subnet
+resource "aws_subnet" "aws-subnet-3" {
+  vpc_id                  = aws_vpc.aws-vpc.id
+  cidr_block              = "10.0.6.0/24"
+  availability_zone       = "ap-southeast-2c"
+  map_public_ip_on_launch = true
+  tags = {
+    Name        = "${var.app_name}-priv-subnet-1"
     Environment = var.app_environment
   }
 }
@@ -264,7 +280,7 @@ resource "aws_ecs_task_definition" "aws-ecs-task-definition-td" {
               [
                 {
                 "name": "uno_create_container",
-                "image": "001983725908.dkr.ecr.ap-southeast-2.amazonaws.com/uno_ecr:create_hc",
+                "image": "001983725908.dkr.ecr.ap-southeast-2.amazonaws.com/uno_ecr:create_hc_v2",
                 "cpu": 256,
                 "memory": 512,
                 "essential": true,
@@ -277,7 +293,7 @@ resource "aws_ecs_task_definition" "aws-ecs-task-definition-td" {
                 },
                 {
                 "name": "uno_read_container",
-                "image": "001983725908.dkr.ecr.ap-southeast-2.amazonaws.com/uno_ecr:read_hc",
+                "image": "001983725908.dkr.ecr.ap-southeast-2.amazonaws.com/uno_ecr:read_hc_v2",
                 "cpu": 256,
                 "memory": 512,
                 "essential": true,
@@ -290,7 +306,7 @@ resource "aws_ecs_task_definition" "aws-ecs-task-definition-td" {
                 },
                 {
                 "name": "uno_update_container",
-                "image": "001983725908.dkr.ecr.ap-southeast-2.amazonaws.com/uno_ecr:update_hc",
+                "image": "001983725908.dkr.ecr.ap-southeast-2.amazonaws.com/uno_ecr:update_hc_v2",
                 "cpu": 256,
                 "memory": 512,
                 "essential": true,

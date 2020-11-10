@@ -18,4 +18,5 @@ Create EKS (or ECS?) cluster with Terraform following this link -
         While creating container definition, we can add private repository auth (When true, private registry authentication is enabled using AWS Secrets Manager.)
             Also an option to pass env variables from Systems Manager Parameter Store. Currently passed through env variables in task definition
         While creating service from the wizard, ALB, and two SGs were created, listening for ALB is 5002
+
         

@@ -40,15 +40,15 @@
 # echo $CREATE-TG
 
 
-# aws_alb_endpoint = uno-application-lb-1064115610.ap-southeast-2.elb.amazonaws.com
+# aws_alb_endpoint=uno-application-lb-1064115610.ap-southeast-2.elb.amazonaws.com
 
 # aws_alb_arn=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:loadbalancer/app/uno-application-lb/a1512e9dd5608b1c 
 
 
-aws_http_80_listener_arn=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:listener/app/uno-application-lb/cc7bc4afcdbe6277/2e83efa28f78b6ff
-aws_target_groups_arn_create=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-create/43f7c1f576679fb7
-aws_target_groups_arn_read=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-read/f592ce13a5f3bd4d
-aws_target_groups_arn_update=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-update/a57e27ec1604dd55
+aws_http_80_listener_arn=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:listener/app/uno-application-lb/f20b482eeffeb0bf/811d47b4fe420330
+aws_target_groups_arn_create=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-create/fa9a3ecc3f3fb2f4
+aws_target_groups_arn_read=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-read/f2ec321267e13bb2
+aws_target_groups_arn_update=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-update/86e6b35b1b90bef1
 
 aws elbv2 create-rule \
     --listener-arn $aws_http_80_listener_arn \
