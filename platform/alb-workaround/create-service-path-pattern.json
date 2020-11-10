@@ -1,0 +1,8 @@
+[
+    {
+        "Field": "path-pattern",
+        "PathPatternConfig": {
+            "Values": ["/create"]
+        }
+    }
+]

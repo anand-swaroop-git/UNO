@@ -1,6 +1,6 @@
 WIP
 
-Created a high level architecture diagram.
+Create a high level architecture diagram.
 Create S3 manually/awscli to store Terraform state.
 Create platform folder and initialize Terraform so that it stores its state in S3.
 Create relevant variable and platform files for Terraform to create DynamoDB

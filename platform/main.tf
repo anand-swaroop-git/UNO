@@ -77,10 +77,24 @@ resource "aws_lb" "uno-application-lb" {
   }
 }
 
+# Unified Listner on port 80
+
+resource "aws_lb_listener" "uno-application-lb-listener-unified" {
+  load_balancer_arn = aws_lb.uno-application-lb.arn
+  port              = "80"
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.uno-application-lb-tg-create.arn
+  }
+
+}
+
 # Create Listener for Application Load Balancer 
 resource "aws_lb_listener" "uno-application-lb-listener-create" {
   load_balancer_arn = aws_lb.uno-application-lb.arn
-  port              = "80"
+  port              = "5001"
   protocol          = "HTTP"
 
   default_action {

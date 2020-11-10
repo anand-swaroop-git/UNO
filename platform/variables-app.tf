@@ -17,3 +17,5 @@ variable "app_sources_cidr" {
   type = list(string)
   description = "List of IPv4 CIDR blocks from which to allow application access"
 }
+
+
