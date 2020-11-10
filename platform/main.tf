@@ -6,20 +6,25 @@ data "aws_availability_zones" "available" {
   state = "available"
 }
 
-# create vpc
+# --------------------------------------------------------
+# VPC
+# --------------------------------------------------------
 resource "aws_vpc" "aws-vpc" {
   cidr_block           = "10.0.0.0/16"
   enable_dns_hostnames = true
+  enable_dns_support   = true
   tags = {
     Name        = "${var.app_name}-vpc"
     Environment = var.app_environment
   }
 }
 
-# Public Subnet 1
-resource "aws_subnet" "aws-subnet-1" {
+# --------------------------------------------------------
+# Public Subnet 1, EIP1 and NAT 1
+# --------------------------------------------------------
+resource "aws_subnet" "aws-pub-subnet-1" {
   vpc_id                  = aws_vpc.aws-vpc.id
-  cidr_block              = "10.0.4.0/24"
+  cidr_block              = "10.0.1.0/24"
   availability_zone       = "ap-southeast-2a"
   map_public_ip_on_launch = true
   tags = {
@@ -28,10 +33,49 @@ resource "aws_subnet" "aws-subnet-1" {
   }
 }
 
-# Public Subnet 2
-resource "aws_subnet" "aws-subnet-2" {
+resource "aws_eip" "eip1-for-nat-1" {
+  tags = {
+    Name        = "${var.app_name}-EIP-for-NAT2"
+    Environment = var.app_environment
+  }
+}
+
+resource "aws_nat_gateway" "nat-1-for-pub-sub-1" {
+  allocation_id = aws_eip.eip1-for-nat-1.id
+  subnet_id     = aws_subnet.aws-pub-subnet-1.id
+
+  tags = {
+    Name        = "${var.app_name}-nat-1-for-pub-sub-1"
+    Environment = var.app_environment
+  }
+}
+
+resource "aws_route_table" "pub-rt-1-for-pub-sub-1" {
+  vpc_id = aws_vpc.aws-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.aws-igw.id
+  }
+  tags = {
+    Name        = "${var.app_name}-pub-rt-1-for-pub-sub-1"
+    Environment = var.app_environment
+  }
+
+}
+
+resource "aws_route_table_association" "pub-1-to-rtpub-1" {
+  subnet_id      = aws_subnet.aws-pub-subnet-1.id
+  route_table_id = aws_route_table.pub-rt-1-for-pub-sub-1.id
+}
+
+
+# --------------------------------------------------------
+# Public Subnet 2, EIP2 and NAT 2
+# --------------------------------------------------------
+resource "aws_subnet" "aws-pub-subnet-2" {
   vpc_id                  = aws_vpc.aws-vpc.id
-  cidr_block              = "10.0.5.0/24"
+  cidr_block              = "10.0.2.0/24"
   availability_zone       = "ap-southeast-2b"
   map_public_ip_on_launch = true
   tags = {
@@ -39,41 +83,116 @@ resource "aws_subnet" "aws-subnet-2" {
     Environment = var.app_environment
   }
 }
+resource "aws_eip" "eip2-for-nat-2" {
+  tags = {
+    Name        = "${var.app_name}-EIP-for-NAT1"
+    Environment = var.app_environment
+  }
+}
+resource "aws_nat_gateway" "nat-2-for-pub-sub-2" {
+  allocation_id = aws_eip.eip2-for-nat-2.id
+  subnet_id     = aws_subnet.aws-pub-subnet-2.id
 
-# Private Subnet
-resource "aws_subnet" "aws-subnet-3" {
+  tags = {
+    Name        = "${var.app_name}-nat-2-for-pub-sub-2"
+    Environment = var.app_environment
+  }
+}
+
+resource "aws_route_table" "pub-rt-2-for-pub-sub-2" {
+  vpc_id = aws_vpc.aws-vpc.id
+
+  route {
+    cidr_block = "0.0.0.0/0"
+    gateway_id = aws_internet_gateway.aws-igw.id
+  }
+  tags = {
+    Name        = "${var.app_name}-pub-rt-2-for-pub-sub-2"
+    Environment = var.app_environment
+  }
+
+}
+resource "aws_route_table_association" "pub-2-to-rtpub-2" {
+  subnet_id      = aws_subnet.aws-pub-subnet-2.id
+  route_table_id = aws_route_table.pub-rt-2-for-pub-sub-2.id
+}
+
+# --------------------------------------------------------
+# Private Subnet 1 and RT 1 and Route
+# --------------------------------------------------------
+resource "aws_subnet" "aws-priv-subnet-1" {
   vpc_id                  = aws_vpc.aws-vpc.id
-  cidr_block              = "10.0.6.0/24"
+  cidr_block              = "10.0.3.0/24"
   availability_zone       = "ap-southeast-2c"
-  map_public_ip_on_launch = true
   tags = {
     Name        = "${var.app_name}-priv-subnet-1"
     Environment = var.app_environment
   }
 }
-# create internet gateway
+
+resource "aws_route_table" "priv-rt-1-for-priv-sub-1" {
+  vpc_id = aws_vpc.aws-vpc.id
+  tags = {
+    Name        = "${var.app_name}-priv-rt-1-for-priv-sub-1"
+    Environment = var.app_environment
+  }
+}
+# Add a Route in Private Route Table to allow IpV4 traffic using route to NAT Gateway 
+resource "aws_route" "priv1-subnet-inet-access-thru-nat1" {
+  route_table_id         = aws_route_table.priv-rt-1-for-priv-sub-1.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.nat-1-for-pub-sub-1.id
+}
+
+resource "aws_route_table_association" "priv-1-to-rtpriv-1" {
+  subnet_id      = aws_subnet.aws-priv-subnet-1.id
+  route_table_id = aws_route_table.priv-rt-1-for-priv-sub-1.id
+}
+
+
+# --------------------------------------------------------
+# Private Subnet 2 and RT 2 and Route
+# --------------------------------------------------------
+resource "aws_subnet" "aws-priv-subnet-2" {
+  vpc_id                  = aws_vpc.aws-vpc.id
+  cidr_block              = "10.0.4.0/24"
+  availability_zone       = "ap-southeast-2b"
+  tags = {
+    Name        = "${var.app_name}-priv-subnet-2"
+    Environment = var.app_environment
+  }
+}
+resource "aws_route_table" "priv-rt-2-for-priv-sub-2" {
+  vpc_id = aws_vpc.aws-vpc.id
+  tags = {
+    Name        = "${var.app_name}-priv-rt-2-for-priv-sub-2"
+    Environment = var.app_environment
+  }
+}
+
+# Add a Route in Private Route Table to allow IpV4 traffic using route to NAT Gateway 
+resource "aws_route" "priv2-subnet-inet-access-thru-nat2" {
+  route_table_id         = aws_route_table.priv-rt-2-for-priv-sub-2.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.nat-2-for-pub-sub-2.id
+}
+
+resource "aws_route_table_association" "priv-2-to-rtpriv-2" {
+  subnet_id      = aws_subnet.aws-priv-subnet-2.id
+  route_table_id = aws_route_table.priv-rt-2-for-priv-sub-2.id
+}
+
+
+
+# --------------------------------------------------------
+# IGW
+# --------------------------------------------------------
 resource "aws_internet_gateway" "aws-igw" {
   vpc_id = aws_vpc.aws-vpc.id
   tags = {
     Name        = "${var.app_name}-igw"
     Environment = var.app_environment
   }
-}
-# create routes
-resource "aws_route_table" "aws-route-table" {
-  vpc_id = aws_vpc.aws-vpc.id
-  route {
-    cidr_block = "0.0.0.0/0"
-    gateway_id = aws_internet_gateway.aws-igw.id
-  }
-  tags = {
-    Name        = "${var.app_name}-route-table"
-    Environment = var.app_environment
-  }
-}
-resource "aws_main_route_table_association" "aws-route-table-association" {
-  vpc_id         = aws_vpc.aws-vpc.id
-  route_table_id = aws_route_table.aws-route-table.id
 }
 
 ##################################################################################
@@ -84,7 +203,7 @@ resource "aws_main_route_table_association" "aws-route-table-association" {
 resource "aws_lb" "uno-application-lb" {
   name               = "uno-application-lb"
   internal           = false
-  subnets            = [aws_subnet.aws-subnet-1.id, aws_subnet.aws-subnet-2.id]
+  subnets            = [aws_subnet.aws-pub-subnet-1.id, aws_subnet.aws-pub-subnet-2.id, aws_subnet.aws-priv-subnet-1.id]
   load_balancer_type = "application"
   security_groups    = [aws_security_group.global-security-group.id]
   tags = {
@@ -338,7 +457,7 @@ resource "aws_ecs_service" "aws-ecs-service-uno" {
   deployment_maximum_percent         = 100
   launch_type                        = "FARGATE"
   network_configuration {
-    subnets          = [aws_subnet.aws-subnet-1.id, aws_subnet.aws-subnet-2.id]
+    subnets          = [aws_subnet.aws-priv-subnet-1.id, aws_subnet.aws-priv-subnet-2.id]
     security_groups  = [aws_security_group.global-security-group.id]
     assign_public_ip = true
   }
