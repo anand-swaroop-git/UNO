@@ -205,7 +205,7 @@ resource "aws_lb" "uno-application-lb" {
   internal           = false
   subnets            = [aws_subnet.aws-pub-subnet-1.id, aws_subnet.aws-pub-subnet-2.id, aws_subnet.aws-priv-subnet-1.id]
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.global-security-group.id]
+  security_groups    = [aws_security_group.alb-security-group.id]
   tags = {
     Name        = "${var.app_name}-alb"
     Environment = var.app_environment
@@ -357,8 +357,8 @@ resource "aws_lb_target_group" "uno-application-lb-tg-update" {
   }
 }
 
-resource "aws_security_group" "global-security-group" {
-  name        = "global-security-group"
+resource "aws_security_group" "alb-security-group" {
+  name        = "alb-security-group"
   description = "Allow all inbound and outbound traffic"
   vpc_id      = aws_vpc.aws-vpc.id
 
@@ -378,7 +378,34 @@ resource "aws_security_group" "global-security-group" {
     cidr_blocks = ["0.0.0.0/0"]
   }
   tags = {
-    Name        = "${var.app_name}-globalsg"
+    Name        = "${var.app_name}-ALB-SG"
+    Environment = var.app_environment
+  }
+}
+
+
+resource "aws_security_group" "ecs-service-sg" {
+  name        = "ecs-service-sg"
+  description = "Allow all inbound and outbound traffic"
+  vpc_id      = aws_vpc.aws-vpc.id
+
+
+  # HTTP 
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+  tags = {
+    Name        = "${var.app_name}-ECS-SG"
     Environment = var.app_environment
   }
 }
@@ -458,7 +485,7 @@ resource "aws_ecs_service" "aws-ecs-service-uno" {
   launch_type                        = "FARGATE"
   network_configuration {
     subnets          = [aws_subnet.aws-priv-subnet-1.id, aws_subnet.aws-priv-subnet-2.id]
-    security_groups  = [aws_security_group.global-security-group.id]
+    security_groups  = [aws_security_group.ecs-service-sg.id]
     assign_public_ip = true
   }
   load_balancer {

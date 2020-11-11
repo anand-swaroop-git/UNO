@@ -45,25 +45,25 @@
 # aws_alb_arn=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:loadbalancer/app/uno-application-lb/a1512e9dd5608b1c 
 
 
-aws_http_80_listener_arn=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:listener/app/uno-application-lb/20743530051c36de/26b26b77bcf69269
-aws_target_groups_arn_create=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-create/54011ca8553281d2
-aws_target_groups_arn_read=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-read/d4f9b9d94ad7c512
-aws_target_groups_arn_update=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-update/757ebd19d86b3a98
+aws_http_80_listener_arn=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:listener/app/uno-application-lb/206155caeaac5b3b/44e69c87a3c41bea
+aws_target_groups_arn_create=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-create/529398b35d82013a
+aws_target_groups_arn_read=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-read/6cc2ce3cec73ef64
+aws_target_groups_arn_update=arn:aws:elasticloadbalancing:ap-southeast-2:001983725908:targetgroup/uno-application-lb-tg-update/76c5562ba83bda3a
 
 aws elbv2 create-rule \
     --listener-arn $aws_http_80_listener_arn \
     --priority 7 \
-    --conditions file://create-service-path-pattern.json \
+    --conditions file://alb-workaround/create-service-path-pattern.json \
     --actions Type=forward,TargetGroupArn=$aws_target_groups_arn_create
 
 aws elbv2 create-rule \
     --listener-arn $aws_http_80_listener_arn \
     --priority 8 \
-    --conditions file://read-service-path-pattern.json \
+    --conditions file://alb-workaround/read-service-path-pattern.json \
     --actions Type=forward,TargetGroupArn=$aws_target_groups_arn_read
 
 aws elbv2 create-rule \
     --listener-arn $aws_http_80_listener_arn \
     --priority 9 \
-    --conditions file://update-service-path-pattern.json \
+    --conditions file://alb-workaround/update-service-path-pattern.json \
     --actions Type=forward,TargetGroupArn=$aws_target_groups_arn_update
