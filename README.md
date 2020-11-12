@@ -3,13 +3,13 @@
 ## Project Description
 
 1. The project takes microservices approach and consists of three core microservices/APIs (/create, /read and /update), fronted by API Gateway and one authentication microservice/API (/authenticate) namely:
-/create
-/read
-/update
-/authenticate
+>/create 
+>/read (Parses the incoming request to validate the userId is numberic, returns validation error otherwise)
+>/update
+>/authenticate
 2. The core microservices are deployed on an ECS cluster in private subnet.
 3. The proxy and authentication APIs are deployed on API Gateway.
-3. Application workflow:
+4. Application workflow:
 - Send a POST request to authentication service with a username and password. If the user already exists in the user pool (User Pool is preconfigured - Manual for now, can be automated) the service will return an id_token.
 - If the user does not exist, it will add the user and then return the id_token.
 - Once you have got the token, you can then call the APIs by providing the id_token with the HTTP request. For commands, please refer to the cURL Commands section below.
@@ -30,10 +30,10 @@ Terraform is used to deploy the following components of Stack:
 >4. API Gateway API Resources, HTTP Proxy Integration and Deployment.
 >5. IAM Role
 
-Manual intervention is required for two actions (Time constraint):
->6. Cognito configuration
+To make it easier to test, have commented out the remote backend config in Terraform.
 
-Terraform is using **encrypted** S3 as it's remote backend. 
+>Manual intervention is only required for two actions Cognito configuration (Time constraint):
+
 
 
 # Steps for Deployment
@@ -43,31 +43,50 @@ There are two steps, one is to deploy the APP and the other is to configure Cogn
 
 
 ## Step 1 - Prerequisites and Deployment of APP
-1. Since the container images are currently stored in AWS ECR Reposiroty, [cross account access](https://aws.amazon.com/premiumsupport/knowledge-center/secondary-account-access-ecr/) can be provisioned. 
-2. Please make sure that AWS CLI is installed. If not, please follow [this](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) link and configure the same.
-3. Install Terraform CLI by following [this](https://learn.hashicorp.com/tutorials/terraform/install-cli) link.
-4. Configure Terraform to run with AWS by following [this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs) link.
-5. Make sure that a bucket is created in your AWS account and update that bucket name in ./platform/backend.tf file. You might need to create a subdirectory named terraform-platform-backend in that bucket as well.
-6. Clone this repo.
-7. Run `terraform init` inside the root of the repository. 
-8. Create a `terraform.tfvars` file and enter variables listed in both (`variables-app.tf` and `variables-auth.tf`) files.
-9. **Browse inside `./platform` and run `bash go.sh`**
 
-Once Terraform finishes, it would output something like `./diagram/successful_terraform_run.png`
+1. Please make sure that AWS CLI is installed. If not, please follow [this](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) link and configure the same. 
+2. Please also make sure that you have configured aws cli's default profile. Use this command `aws configure --profile default`. The user should have enough permissions to perform the operations mentioned under the **Terraform is used to deploy the following components of Stack:** section above.
+3. Install Terraform CLI by following [this](https://learn.hashicorp.com/tutorials/terraform/install-cli) link if it's not already installed.
+4. Configure Terraform to run with AWS by following [this](https://registry.terraform.io/providers/hashicorp/aws/latest/docs) link.
+5. Clone this repo and then browse indside the root directory `UNO`.
+6. **Browse inside `./platform` and create a file called `terraform.tfvars`**
+7. Manually replace the values of variables as shown in `./diagram/screenshots/terraform.tfvars` with your actual values.
+8. **Run `bash go.sh`** (From `./platform/` directory)
+
+Once Terraform finishes, it would output something like `./diagram/screenshots/successful_terraform_run.png`
 
 ## Step 2 - Cognito Configuration (Manual Steps, can be completely automated)
 
-1. Create user-pool and note down user pool ID.
-2. Create client in user-pool and note down Client Secret and Client access key.
-3. Create presignup lambda (Present in`./platform/lambda/` directory).
-4. Add presignup lambda in user-pool as a pre signup trigger (Present in`./platform/lambda/` directory).
-5. Create unosignin lambda which will talk to cognito to authenticate - update user-pool ID and client secrete and access key (Present in`./platform/lambda/` directory).
-6. Create API Gateway resource/api for the uno-signin lambda - call it `/authenticate` endpoint and deploy it. This will give you the authentication endpoint.
-7. Create a new authorizer in your main API named UnoAPI and choose your user-pool as authorizer - Add Authorization header via which token would be provided. Screenshot `cognito_authorizer.png`
-8. Add the authorizer to UnoAPI. Screenshot `cognito_add_authorizer.png`
+1. Open Cognito and click on Create user-pool, select `Review defaults`, disable `email` required and choose No in other verification/complexities (For testing) and finally click on `Create pool` and note down `Pool Id`.
+2. Click `App clients` on the left menu, enter `App client name`, leave everything default and click `Create app client` at the bottom. Make sure that `Enable username password auth for admin APIs for authentication [(ALLOW_ADMIN_USER_PASSWORD_AUTH)](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-authentication-flow.html#amazon-cognito-user-pools-server-side-authentication-flow)` is enabled, as shown in `./diagram/screenshots/cognito_auth_flow_setting.png`. Click on `Show details` and note down `**App client id**` and `**App client secret**`.
+3. Go to Lambda, create and deploy a python based function named `presignup`. Paste code from `./platform/lambda/presignup.py`.
+4. From the userpool menu in Cognito, click on `Triggers` and Add presignup lambda created above, in user-pool as a pre signup trigger.
+5. Now create and deploy a uno-signin lambda function (Paste code from `./platform/lambda/uno-signin.py`) which will talk to Cognito to authenticate  - **Update user-pool ID, client secret and access key** noted from step 2 above. Under the permissions tab of `uno-signin` click on the name currently assigned and add another IAM policy to that role with following specs (Scoping TBD):
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "cognito-identity:*",
+                "cognito-idp:*",
+                "cognito-sync:*",
+                "iam:ListRoles",
+                "iam:ListOpenIdConnectProviders",
+                "sns:ListPlatformApplications"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+6. Create API Gateway API and then `Create Resource` from `Actions` dropdown for the uno-signin lambda - call the resource as `/authenticate` endpoint, add a `POST` method, choose integration type as `Lambda Function`, enter `uno-signin` in the `Lambda Function` field, `Save` it and finally deploy it. **This will give you the authentication endpoint**.
+7. Now go to the main API (`UnoAPI`)  and create a new authorizer from the left menu, choose **Cognito** as type and choose your user-pool as authorizer. **Add Authorization header via which token would be provided. Screenshot `cognito_authorizer.png`**
+8. Now, click on `Resources` on the left under UnoAPI menu, click on `ANY`, click on `Method Request`, under settings, click on `Authorization`, choose the authorizer created above and add the authorizer to UnoAPI. Screenshot `cognito_add_authorizer.png`
 9. Deploy the API
-10. Test - Hit /authenticate endpoint to get token for any user/password.
-11. Hit UnoAPI  by supplying the token in the Authorization header - it should succeed, without token it should give 401.
+10. Test - Hit /authenticate endpoint to get token for any user/password. Please follow the command section below.
+11. Hit UnoAPI by supplying the token in the Authorization header - it should succeed, without token it should give 401.
 
 ## cURL Commands
 
@@ -124,6 +143,10 @@ curl --location --request PUT 'https://m1nmogphg2.execute-api.ap-southeast-2.ama
 ```
 
 > Some screenshots of the above requests can be found in `./diagram/screenshots` directory.
+
+## Clean Up
+1. Make sure you are inside `./platform` directory.
+2. **Run `bash cleanup.sh`**
 
 ## Future Work
 1. Enable DynamoDB Autoscaling

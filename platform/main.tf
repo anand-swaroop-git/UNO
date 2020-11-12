@@ -25,7 +25,7 @@ resource "aws_vpc" "aws-vpc" {
 resource "aws_subnet" "aws-pub-subnet-1" {
   vpc_id                  = aws_vpc.aws-vpc.id
   cidr_block              = "10.0.1.0/24"
-  availability_zone       = "ap-southeast-2a"
+  availability_zone       = data.aws_availability_zones.available.names[0]
   map_public_ip_on_launch = true
   tags = {
     Name        = "${var.app_name}-pub-subnet-1"
@@ -76,7 +76,7 @@ resource "aws_route_table_association" "pub-1-to-rtpub-1" {
 resource "aws_subnet" "aws-pub-subnet-2" {
   vpc_id                  = aws_vpc.aws-vpc.id
   cidr_block              = "10.0.2.0/24"
-  availability_zone       = "ap-southeast-2b"
+  availability_zone       = data.aws_availability_zones.available.names[1]
   map_public_ip_on_launch = true
   tags = {
     Name        = "${var.app_name}-pub-subnet-2"
@@ -123,7 +123,7 @@ resource "aws_route_table_association" "pub-2-to-rtpub-2" {
 resource "aws_subnet" "aws-priv-subnet-1" {
   vpc_id                  = aws_vpc.aws-vpc.id
   cidr_block              = "10.0.3.0/24"
-  availability_zone       = "ap-southeast-2c"
+  availability_zone       = data.aws_availability_zones.available.names[2]
   tags = {
     Name        = "${var.app_name}-priv-subnet-1"
     Environment = var.app_environment
@@ -156,7 +156,7 @@ resource "aws_route_table_association" "priv-1-to-rtpriv-1" {
 resource "aws_subnet" "aws-priv-subnet-2" {
   vpc_id                  = aws_vpc.aws-vpc.id
   cidr_block              = "10.0.4.0/24"
-  availability_zone       = "ap-southeast-2b"
+  availability_zone       = data.aws_availability_zones.available.names[1]
   tags = {
     Name        = "${var.app_name}-priv-subnet-2"
     Environment = var.app_environment
@@ -426,7 +426,7 @@ resource "aws_ecs_task_definition" "aws-ecs-task-definition-td" {
               [
                 {
                 "name": "uno_create_container",
-                "image": "001983725908.dkr.ecr.ap-southeast-2.amazonaws.com/uno_ecr:create_hc_v2",
+                "image": "aswwsa/create_hc_v2",
                 "cpu": 256,
                 "memory": 512,
                 "essential": true,
@@ -439,7 +439,7 @@ resource "aws_ecs_task_definition" "aws-ecs-task-definition-td" {
                 },
                 {
                 "name": "uno_read_container",
-                "image": "001983725908.dkr.ecr.ap-southeast-2.amazonaws.com/uno_ecr:read_hc_v2",
+                "image": "aswwsa/read_hc_v2",
                 "cpu": 256,
                 "memory": 512,
                 "essential": true,
@@ -452,7 +452,7 @@ resource "aws_ecs_task_definition" "aws-ecs-task-definition-td" {
                 },
                 {
                 "name": "uno_update_container",
-                "image": "001983725908.dkr.ecr.ap-southeast-2.amazonaws.com/uno_ecr:update_hc_v2",
+                "image": "aswwsa/update_hc_v2",
                 "cpu": 256,
                 "memory": 512,
                 "essential": true,
