@@ -3,13 +3,14 @@
 ## Project Description
 
 1. The project takes microservices approach and consists of three core microservices/APIs (/create, /read and /update), fronted by API Gateway and one authentication microservice/API (/authenticate) namely:
->/create 
->/read (Parses the incoming request to validate the userId is numberic, returns validation error otherwise)
->/update
->/authenticate
+>1. /create 
+>2. /read (Parses the incoming request to validate the userId is numberic, returns validation error otherwise)
+>3. /update
+>4. /authenticate
 2. The core microservices are deployed on an ECS cluster in private subnet.
 3. The proxy and authentication APIs are deployed on API Gateway.
-4. Application workflow:
+
+## Application workflow:
 - Send a POST request to authentication service with a username and password. If the user already exists in the user pool (User Pool is preconfigured - Manual for now, can be automated) the service will return an id_token.
 - If the user does not exist, it will add the user and then return the id_token.
 - Once you have got the token, you can then call the APIs by providing the id_token with the HTTP request. For commands, please refer to the cURL Commands section below.
@@ -32,7 +33,7 @@ Terraform is used to deploy the following components of Stack:
 
 To make it easier to test, have commented out the remote backend config in Terraform.
 
->Manual intervention is only required for two actions Cognito configuration (Time constraint):
+>Manual intervention is only required for Cognito configuration (Time constraint):
 
 
 
@@ -58,7 +59,7 @@ Once Terraform finishes, it would output something like `./diagram/screenshots/s
 ## Step 2 - Cognito Configuration (Manual Steps, can be completely automated)
 
 1. Open Cognito and click on Create user-pool, select `Review defaults`, disable `email` required and choose No in other verification/complexities (For testing) and finally click on `Create pool` and note down `Pool Id`.
-2. Click `App clients` on the left menu, enter `App client name`, leave everything default and click `Create app client` at the bottom. Make sure that `Enable username password auth for admin APIs for authentication [(ALLOW_ADMIN_USER_PASSWORD_AUTH)](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-authentication-flow.html#amazon-cognito-user-pools-server-side-authentication-flow)` is enabled, as shown in `./diagram/screenshots/cognito_auth_flow_setting.png`. Click on `Show details` and note down `**App client id**` and `**App client secret**`.
+2. Click `App clients` on the left menu, enter `App client name`, leave everything default and click `Create app client` at the bottom. Make sure that "Enable username password auth for admin APIs for authentication [(ALLOW_ADMIN_USER_PASSWORD_AUTH)](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-authentication-flow.html#amazon-cognito-user-pools-server-side-authentication-flow)" is enabled, as shown in `./diagram/screenshots/cognito_auth_flow_setting.png`. Click on `Show details` and note down `**App client id**` and `**App client secret**`.
 3. Go to Lambda, create and deploy a python based function named `presignup`. Paste code from `./platform/lambda/presignup.py`.
 4. From the userpool menu in Cognito, click on `Triggers` and Add presignup lambda created above, in user-pool as a pre signup trigger.
 5. Now create and deploy a uno-signin lambda function (Paste code from `./platform/lambda/uno-signin.py`) which will talk to Cognito to authenticate  - **Update user-pool ID, client secret and access key** noted from step 2 above. Under the permissions tab of `uno-signin` click on the name currently assigned and add another IAM policy to that role with following specs (Scoping TBD):
