@@ -81,7 +81,7 @@ resource "aws_api_gateway_integration" "UnoAPIIntegration" {
   http_method             = aws_api_gateway_method.UnoAPIMethod.http_method
   integration_http_method = "POST"
   type                    = "AWS"
-  uri                     = "arn:aws:apigateway:ap-southeast-2:lambda:path/2015-03-31/functions/${aws_lambda_function.uno-signin_v1.arn}/invocations"
+  uri                     = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${aws_lambda_function.uno-signin_v1.arn}/invocations"
   credentials             = aws_iam_role.uno-api-gateway-role.arn
 }
 
@@ -104,7 +104,7 @@ resource "aws_api_gateway_authorizer" "UnoAPIAuthorizer" {
   identity_source = "method.request.header.Authorization"
   type            = "COGNITO_USER_POOLS"
   provider_arns   = [aws_cognito_user_pool.uno-users-pool.arn]
-  authorizer_uri  = "arn:aws:apigateway:ap-southeast-2:lambda:path/2015-03-31/functions/${aws_lambda_function.uno-signin_v1.arn}/invocations"
+  authorizer_uri  = "arn:aws:apigateway:${var.aws_region}:lambda:path/2015-03-31/functions/${aws_lambda_function.uno-signin_v1.arn}/invocations"
 }
 
 

@@ -36,5 +36,7 @@ aws elbv2 create-rule \
     --actions Type=forward,TargetGroupArn=$update_tg_arn --profile default &> /dev/null
 echo "Registered."
 echo
-echo "Please refer to curl commands section in readme.md to use the APIs"
+echo "TERRAFORM FINISHED SUCCESSFULLY!"
+echo
+echo "You can find the authentication and application endpoints above in GREEN. For details on how to use them, please refer to the readme.md file"
 echo
