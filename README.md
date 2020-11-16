@@ -52,8 +52,8 @@ To make it easier to test, have commented out the remote backend config in Terra
 Once Terraform finishes, it would output something like `./diagram/screenshots/successful_terraform_run.png`
 
 > Once Terraform is finished, you would see two endpoints on the terminal:
-> CRUD APPLICATION ENDPOINT
-> AUTHENTICATION ENDPOINT
+>1. CRUD APPLICATION ENDPOINT
+>2. AUTHENTICATION ENDPOINT
 
 **Use the Authentication_Endpoint from the Terraform output to get the secret token and then use that token in subsequent calls to application endpoints also shown in the Terraform output as Create_API_Endpoint, Read_API_Endpoint, Update_API_Endpoint**
 
