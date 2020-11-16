@@ -130,5 +130,5 @@ curl --location --request PUT 'https://m1nmogphg2.execute-api.ap-southeast-2.ama
 
 **Hight Level Architecture Diagram**
 
-![alt text](https://github.com/anand-swaroop-git/UNO/blob/dev/diagram/high_level_fully_automated.png?raw=true)
+![alt text](https://github.com/anand-swaroop-git/UNO/blob/develop/diagram/uno-fully-automated.drawio.png?raw=true)
 
