@@ -6,25 +6,29 @@ import hashlib
 import base64
 import json
 import uuid
- 
-# MODIFY
-USER_POOL_ID = 'dummy'
-CLIENT_ID = 'dummy'
-CLIENT_SECRET = 'dummy'
+import os
+
+# Getting from environment variables
+USER_POOL_ID = os.environ['USER_POOL_ID_UNO']
+CLIENT_ID = os.environ['CLIENT_ID_UNO']
+CLIENT_SECRET = os.environ['CLIENT_SECRET_UNO']
 
 client = None
 
+
 def get_secret_hash(username):
     msg = username + CLIENT_ID
-    dig = hmac.new(str(CLIENT_SECRET).encode('utf-8'), 
-        msg = str(msg).encode('utf-8'), digestmod=hashlib.sha256).digest()
+    dig = hmac.new(str(CLIENT_SECRET).encode('utf-8'),
+                   msg=str(msg).encode('utf-8'), digestmod=hashlib.sha256).digest()
     d2 = base64.b64encode(dig).decode()
     return d2
+
 
 ERROR = 0
 SUCCESS = 1
 USER_EXISTS = 2
-    
+
+
 def sign_up(username, password):
     try:
         resp = client.sign_up(
@@ -39,7 +43,8 @@ def sign_up(username, password):
         print(e)
         return ERROR
     return SUCCESS
-    
+
+
 def initiate_auth(username, password):
     try:
         resp = client.admin_initiate_auth(
@@ -62,6 +67,7 @@ def initiate_auth(username, password):
         return None, "Unknown error"
     return resp, None
 
+
 def lambda_handler(event, context):
     global client
     if client == None:
@@ -78,7 +84,7 @@ def lambda_handler(event, context):
     if signed_up == SUCCESS:
         is_new = "true"
         #user_id = str(uuid.uuid4())
-    
+
     resp, msg = initiate_auth(username, password)
     if msg != None:
         return {'status': 'fail', 'msg': msg}

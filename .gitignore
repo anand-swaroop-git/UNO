@@ -39,3 +39,5 @@ terraform.rc
 
 # Ignore .env file
 .env
+
+*.zip
