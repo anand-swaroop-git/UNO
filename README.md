@@ -41,11 +41,11 @@ To make it easier to test, have commented out the remote backend config in Terra
 ## Prerequisites and Deployment of APP
 
 1. Please make sure that AWS CLI is installed. If not, please follow [this](https://docs.aws.amazon.com/cli/latest/userguide/cli-chap-install.html) link and configure the same using the default profile. 
-2. Please also make sure that you have configured aws cli's **default profile**. Use this command `aws configure --profile default`. The user should have enough permissions to perform the operations mentioned under the **Terraform is used to deploy the following components of Stack:** section above.
+2. Please also make sure that you have configured aws cli's **default profile**. Use this command `aws configure --profile default` to configure the default profile. The user should have enough permissions to perform the operations mentioned under the **Terraform is used to deploy the following components of Stack:** section above.
 3. Download and install Terraform CLI by following [this](https://www.terraform.io/downloads.html) link if it's not already installed. Make sure it's in your $PATH and is working fine.
 4. Clone this repo and then browse indside the root directory `UNO`.
-5. **Browse inside `./platform` and create a file called `terraform.tfvars`**
-6. Manually replace the values of variables as shown in `./diagram/screenshots/terraform.tfvars` with your actual values.
+5. **Browse inside `./platform` directory from your terminal**
+6. Manually replace the values of variables as shown in `./diagram/screenshots/terraform.tfvars` with your actual values in `terraform.tfvars` file.
 7. **Make sure that the region that you have entered in the terraform.tfvars file above, is the same as you have specified while configuring the default aws cli profile by using** `aws configure --profile default` command.
 8. **Run `bash go.sh`** (From `./platform/` directory)
 
