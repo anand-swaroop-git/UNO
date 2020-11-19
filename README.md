@@ -1,4 +1,4 @@
-# CRUD | Python (Flask) | Terraform | Cognito | API Gateway | ECS Fargate | DynamoDB
+# CRUD | Python (Flask) | Terraform | Cognito | API Gateway | ECS Fargate | DynamoDB (Check develop branch for full automation)
 
 ## Project Description
 
